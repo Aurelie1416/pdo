@@ -1,10 +1,11 @@
 <?php
     function interval(){
         ob_flush();
+        usleep(500000);
         flush();
     }
 
-    class Warrior {
+    class Warriorfirst {
         private $health;
         private $hitPoint;
 
@@ -38,9 +39,9 @@
         }
     }
 
-    $point = Wizard::MAGIC_POINT_PER_ATTACK;
+    $point = Wizardfirst::MAGIC_POINT_PER_ATTACK;
 
-    class Wizard {
+    class Wizardfirst {
         const MAGIC_POINT_PER_ATTACK = 1;
         private $health;
         private $hitPoint;
@@ -61,7 +62,7 @@
             }
         }
 
-        public function attack(){
+        public function magic(){
             if($this->isalive() && $this->magicPoint > 0){
                 $this->magicPoint -= 1;
             }
@@ -70,7 +71,7 @@
             }  
         }
 
-        public function bilan(){
+        public function attack(){
             if($this->isalive() && $this->magicPoint > 0){
                 return $this->hitPoint;
             }
@@ -84,7 +85,10 @@
         }
     }
 
-    class Fighter {
+    abstract class Fighter {
+
+        protected $health;
+        protected $hitPoint;
 
         public function __construct(int $health, int $hitPoint){
             $this->health = $health;
@@ -100,8 +104,8 @@
             }
             /* return $this->health > 0; 
             return !$this->health <= 0; */
-        }
-
+        }        
+        
         public function attack(){
             if($this->isalive()){
                 return $this->hitPoint; 
@@ -109,6 +113,23 @@
             else{
                 return 0;
             }
+        }
+
+        public function takeDamage(int $damage){
+            $this->health -= $damage;
+        }
+    }
+
+    class Warrior extends Fighter{
+    }
+
+    class Wizard extends Fighter{
+
+        private $magicPoint;
+
+        public function __construct(int $health, int $hitPoint, int $magicPoint = 10){
+            parent::__construct($health, $hitPoint);
+            $this->magicPoint = $magicPoint;
         }
 
         public function magic(){
@@ -120,23 +141,18 @@
             }  
         }
 
-        public function takeDamage(int $damage){
-            $this->health -= $damage;
+        public function attack(){
+            if($this->isalive() && $this->magicPoint > 0){
+                return $this->hitPoint;
+            }
+            else{
+                return 0;
+            }  
         }
     }
 
-    class Warrior2 extends Fighter{
-        public function isalive(){
-
-        }
-    }
-
-    class Wizzard2 extends Fighter{
-        
-    }
-
-    $batman = new Warrior(100, rand(1, 20));
-    $superman = new Warrior(100, rand(1, 20));
+    $batman = new Warriorfirst(100, rand(1, 20));
+    $superman = new Warriorfirst(100, rand(1, 20));
     while($batman->isalive() == true && $superman->isalive() == true){
         $hasard = rand(1, 3);
         if($hasard == 1){
@@ -166,28 +182,28 @@
         interval();
     }
 
-    $harry = new Wizard(100, rand(1, 20));
-    $voldemort = new Wizard(100, rand(1, 20));
+    $harry = new Wizardfirst(100, rand(1, 100));
+    $voldemort = new Wizardfirst(100, rand(1, 100));
     while($harry->isalive() == true && $voldemort->isalive() == true){
         $hasard = rand(1, 3);
         if($hasard == 1){
-            $voldemort->takeDamage(rand(1, 20));
-            $harry->attack();
-            echo 'Harry Potter inflige '.$harry->bilan().' points de dégats à Voldemort'.'<br>';
+            $voldemort->takeDamage($harry->attack());
+            $harry->magic();
+            echo 'Harry Potter inflige '.$harry->attack().' points de dégats à Voldemort'.'<br>';
             interval();
         }
         else if($hasard == 2){
-            $harry->takeDamage(rand(1, 20));
-            $voldemort->attack();
-            echo 'Voldemort inflige '.$voldemort->bilan().' points de dégats à Harry Potter'.'<br>';
+            $harry->takeDamage($voldemort->attack());
+            $voldemort->magic();
+            echo 'Voldemort inflige '.$voldemort->attack().' points de dégats à Harry Potter'.'<br>';
             interval();
         } 
         else if($hasard == 3){
-            $harry->takeDamage(rand(1, 20));
-            $voldemort->takeDamage(rand(1, 20));
-            $harry->attack();
-            $voldemort->attack();
-            echo 'Harry Potter inflige '.$harry->bilan().' points de dégats à Voldemort et Voldemort inflige '.$voldemort->bilan().' points de dégats à Harry Potter'.'<br>';
+            $harry->takeDamage($voldemort->attack());
+            $voldemort->takeDamage($harry->attack());
+            $harry->magic();
+            $voldemort->magic();
+            echo 'Harry Potter inflige '.$harry->attack().' points de dégats à Voldemort et Voldemort inflige '.$voldemort->attack().' points de dégats à Harry Potter'.'<br>';
             interval();
         }
     }  
@@ -201,36 +217,72 @@
         interval();
     }
 
-    $potter = new Wizard(100, rand(1, 20));
+    $jedusor = new Wizard(100, rand(1, 20));
     $brucewayne = new Warrior(100, rand(1, 20));
-    while($potter->isalive() == true && $brucewayne->isalive() == true){
+    while($jedusor->isalive() == true && $brucewayne->isalive() == true){
         $hasard = rand(1, 3);
         if($hasard == 1){
-            $brucewayne->takeDamage($potter->bilan());
-            $potter->attack();
-            echo 'Harry Potter inflige '.$potter->bilan().' points de dégats à Batman'.'<br>';
+            $brucewayne->takeDamage($jedusor->attack());
+            $jedusor->magic();
+            echo 'Voldemort inflige '.$jedusor->attack().' points de dégats à Batman'.'<br>';
             interval();
         }
         else if($hasard == 2){
-            $potter->takeDamage($brucewayne->attack());
-            echo 'Batman inflige '.$brucewayne->attack().' points de dégats à Harry Potter'.'<br>';
+            $jedusor->takeDamage($brucewayne->attack());
+            echo 'Batman inflige '.$brucewayne->attack().' points de dégats à Voldemort'.'<br>';
             interval();
         } 
         else if($hasard == 3){
-            $potter->attack();
-            $potter->takeDamage($brucewayne->attack());
-            $brucewayne->takeDamage($potter->bilan());
-            echo 'Harry Potter inflige '.$potter->bilan().' points de dégats à Batman et Batman inflige '.$brucewayne->attack().' points de dégats à Harry Potter'.'<br>';
+            $jedusor->magic();
+            $jedusor->takeDamage($brucewayne->attack());
+            $brucewayne->takeDamage($jedusor->attack());
+            echo 'Voldemort inflige '.$jedusor->attack().' points de dégats à Batman et Batman inflige '.$brucewayne->attack().' points de dégats à Voldemort'.'<br>';
             interval();
         }
     }  
 
-    if ($potter->isalive() == false){
-        echo '<h2>Batman a battu Harry Potter'.'<br>'.'<br>';
+    if ($brucewayne->isalive() == true){
+        echo '<h2>Batman a battu Voldemort</h2>'.'<br>'.'<br>';
         interval();
     }
-    else if($brucewayne->isalive() == false){
-        echo '<h2>Harry Potter a battu Batman</h2>'.'<br>'.'<br>';
+    else if($jedusor->isalive() == true){
+        echo '<h2>Voldemort a battu Batman</h2>'.'<br>'.'<br>';
         interval();
+    }
+
+    $potter = new Wizard(100, rand(1, 20));
+    $clarckkent = new Warrior(100, rand(1, 20));
+    while($potter->isalive() == true && $clarckkent->isalive() == true){
+        $hasard = rand(1, 3);
+        if($hasard == 1){
+            $clarckkent->takeDamage($potter->attack());
+            $potter->magic();
+            echo 'Harry Potter inflige '.$potter->attack().' points de dégats à Superman'.'<br>';
+            interval();
+        }
+        else if($hasard == 2){
+            $potter->takeDamage($clarckkent->attack());
+            echo 'Superman inflige '.$clarckkent->attack().' points de dégats à Harry Potter'.'<br>';
+            interval();
+        } 
+        else if($hasard == 3){
+            $potter->magic();
+            $potter->takeDamage($clarckkent->attack());
+            $clarckkent->takeDamage($potter->attack());
+            echo 'Harry Potter inflige '.$potter->attack().' points de dégats à Superman et Superman inflige '.$clarckkent->attack().' points de dégats à Harry Potter'.'<br>';
+            interval();
+        }
+    }  
+
+    if ($clarckkent->isalive() == true){
+        echo '<h2>Superman a battu Harry Potter'.'<br>'.'<br>';
+        interval();
+    }
+    else if($potter->isalive() == true){
+        echo '<h2>Harry Potter a battu Superman</h2>'.'<br>'.'<br>';
+        interval();  
     }
 ?>
+
+<!-- array_push($warriors, 'Gannondorf', 'Wolverine', 'Mario', 'Link', 'Ironman', 'Spiderman', 'Thor', 'Hulk', 'Batman', 'Superman', 'Jocker', 'Lex Luthor', 'Wonderwoman', 'Arthur', 'Percival', 'Lancelot', 'Galahad', 'Gawain', 'Geralt de Rive', 'Ciri');
+     array_push($wizards, 'Mystic', 'Sheik', 'Remus Lupin', 'Zelda', 'Magneto', 'Professor X', 'Doctor Strange', 'Harry Potter', 'Dumbledore', 'Voldemort', 'Hermione Granger', 'Ron Weasley', 'Sirius Black', 'Norbert Dragonneau', 'Gelert Grindewald', 'Merlin', 'Morgane', 'Viviane', 'Triss', 'Yennefer'); -->
